@@ -1,7 +1,29 @@
 %%Load Data
-jump_data = import_idt('out.features.jump*.gz',15);
-run_data = import_idt('out.features.run.gz',15);
-sit_data = import_idt('out.features.sit.gz',15);
+% data = struct('jump',[],'run',[],'sit',[]);
+% %jump_data = import_idt('out.features.jump*.gz',15);
+% 
+% for i=1:5
+%     name = sprintf('data/jump%d.gz',i);
+%     data.jump(end+1) = import_idt(name,15);
+% end
+
+jump1 = import_idt('data/jump1.gz',15);
+jump2 = import_idt('data/jump2.gz',15);
+jump3 = import_idt('data/jump3.gz',15);
+jump4 = import_idt('data/jump4.gz',15);
+jump5 = import_idt('data/jump5.gz',15);
+
+run1 = import_idt('data/run1.gz',15);
+run2 = import_idt('data/run2.gz',15);
+run3 = import_idt('data/run3.gz',15);
+run4 = import_idt('data/run4.gz',15);
+run5 = import_idt('data/run5.gz',15);
+
+sit1 = import_idt('data/sit1.gz',15);
+sit2 = import_idt('data/sit2.gz',15);
+sit3 = import_idt('data/sit3.gz',15);
+sit4 = import_idt('data/sit4.gz',15);
+sit5 = import_idt('data/sit5.gz',15);
 % sdown_data = import_idt('out.stairdown.sit.gz',15);
 % sup_data = import_idt('out.features.stairup.gz',15);
 % stand_data = import_idt('out.features.stand.gz',15);
