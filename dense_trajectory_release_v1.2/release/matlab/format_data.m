@@ -7,29 +7,42 @@
 %     data.jump(end+1) = import_idt(name,15);
 % end
 
-jump1 = import_idt('data/jump1.gz',15);
-jump2 = import_idt('data/jump2.gz',15);
-jump3 = import_idt('data/jump3.gz',15);
-jump4 = import_idt('data/jump4.gz',15);
-jump5 = import_idt('data/jump5.gz',15);
-
-run1 = import_idt('data/run1.gz',15);
-run2 = import_idt('data/run2.gz',15);
-run3 = import_idt('data/run3.gz',15);
-run4 = import_idt('data/run4.gz',15);
-run5 = import_idt('data/run5.gz',15);
-
-sit1 = import_idt('data/sit1.gz',15);
-sit2 = import_idt('data/sit2.gz',15);
-sit3 = import_idt('data/sit3.gz',15);
-sit4 = import_idt('data/sit4.gz',15);
-sit5 = import_idt('data/sit5.gz',15);
+% jump1 = import_idt('data/jump1.gz',15,1);
+% jump2 = import_idt('data/jump2.gz',15,1);
+% jump3 = import_idt('data/jump3.gz',15,1);
+% jump4 = import_idt('data/jump4.gz',15,1);
+% jump5 = import_idt('data/jump5.gz',15,1);
+% 
+% run1 = import_idt('data/run1.gz',15,2);
+% run2 = import_idt('data/run2.gz',15,2);
+% run3 = import_idt('data/run3.gz',15,2);
+% run4 = import_idt('data/run4.gz',15,2);
+% run5 = import_idt('data/run5.gz',15,2);
+% 
+% sit1 = import_idt('data/sit1.gz',15,3);
+% sit2 = import_idt('data/sit2.gz',15,3);
+% sit3 = import_idt('data/sit3.gz',15,3);
+% sit4 = import_idt('data/sit4.gz',15,3);
+% sit5 = import_idt('data/sit5.gz',15,3);
 % sdown_data = import_idt('out.stairdown.sit.gz',15);
 % sup_data = import_idt('out.features.stairup.gz',15);
 % stand_data = import_idt('out.features.stand.gz',15);
 % turn_data = import_idt('out.features.turn.gz',15);
 % walk_data = import_idt('out.features.walk.gz',15);
 
+direct = '/Users/holly/Documents/Project/dense_trajectory_release_v1.2/release/matlab/data/jpl';
+files = dir(direct);
+
+fileIndex = find(~[files.isdir]);
+data = struct('name',{},'info',{},'tra',{},'tra_shape',{},'hog',{},'hof',{},'mbhx',{},'mbhy',{});
+
+for i = 1:length(fileIndex)
+    fileName = files(fileIndex(i)).name;
+    temp = import_idt1(strcat('data/jpl/',fileName),15,strrep(fileName,'.gz','') );
+    data = [data; temp];
+end
+
+save('final_data')
 
 %%
 %Create dictionary
@@ -40,10 +53,6 @@ sit5 = import_idt('data/sit5.gz',15);
 feat_size = 100000;
 %each_class = feat_size/8;
 
-jump_size = size(jump_data.info(1,:));
-run_size = size(run_data.info(1,:));
-sit_size = size(sit_data.info(1,:));
-
 descriptors = struct('label',[ones(jump_size) 2*ones(run_size) 3*ones(sit_size)],...
                      'info',[jump_data.info run_data.info sit_data.info],...
                      'tra',[jump_data.tra run_data.tra sit_data.tra],...
@@ -52,12 +61,6 @@ descriptors = struct('label',[ones(jump_size) 2*ones(run_size) 3*ones(sit_size)]
                      'hof',[jump_data.hof run_data.hof sit_data.hof],...
                      'mbhx',[jump_data.mbhx run_data.mbhx sit_data.mbhx],...
                      'mbhy',[jump_data.mbhy run_data.mbhy sit_data.mbhy]);
-%clear jump_data;
-%clear run_data;
-%clear sit_data;
-clear jump_size;
-clear run_size;
-clear sit_size;
 
 %%
 %Choose number of descriptors
