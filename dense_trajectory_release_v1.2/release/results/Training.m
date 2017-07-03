@@ -17,8 +17,8 @@ load('dictionary_hog');
 load('descriptors_chosen_hog');
 n = 80000;
 index_train = zeros(1,n);
-TrainMat = descriptors_chosen.hog(:,1:80000)';
-TestMat = descriptors_chosen.hog(:,80001:100000)';
+TrainMat = double(descriptors_chosen.hog(:,1:80000)');
+TestMat = double(descriptors_chosen.hog(:,80001:100000)');
 
 for i=1:n
     descriptor = TrainMat(i,:);
@@ -45,10 +45,16 @@ save('assignd_descriptor_hog','index_train','index_test');
 clear;
 BoW =zeros(83,4000); %initialization 
 isshow = 0; % show image and histogram or not
-% load('descriptors_chosen.descriptors_chosen.labels','labels');
-%load('dictionary_hog','C');
+
 load('descriptors_chosen_hog');
-load('assignd_descriptor_hog')
+load('assignd_descriptor_hog');
+
+% if unsorted then uncomment below
+% data = [descriptors_chosen.name' descriptors_chosen.hog'];
+% data = sortrows(data);
+% descriptors_chosen.name = data(:,1)';
+% descriptors_chosen.hog = double(data(:,2:97)');
+
 nvids = 83;
 vocbsize = 4000;
 name = descriptors_chosen.name(1);
@@ -60,42 +66,50 @@ for ii = 1:size(descriptors_chosen.name,2)
         ind = ind + 1;
         name = descriptors_chosen.name(ii);
     end
-    BoW(ind,indexes(ii)) = BoW(ii,indexes(ii))+1;
+    BoW(ind,indexes(ii)) = BoW(ind,indexes(ii))+1;
 end
 
-% for ii = 1:nvids
-% %       image_dir=data;                    % location where detector is saved
-% %       inFName = fullfile(image_dir, sprintf('%s', 'sift_features'));
-% %       load(inFName, 'features');
-%       while (name == descriptors_chosen.name(ii))
-% 
-%           raw_data = zeros(size(descriptors,1));
-%           for i=1:size(descriptors.data,1)
-%               d = EuclideanDistance(features.data(i,:),C);
-%               [minimum, index] = min(d);
-%               raw_data(i) = index;
-%           end
-% 
-%           histogram = zeros(1,vocbsize);
-%           for i = 1:96
-%               a = index_train(i);
-%               for j = 1:vocbsize
-%                   if a==j
-%                       histogram(j) = histogram(j) +1;
-%                       break;
-%                   else
-%                       continue;
-%                   end
-%               end
-%           end
-% 
-%           BoW(ii,:) = do_normalize(histogram);
-%       else
-%           continue;
-%       end
-% %       if isshow == 1
-% %         close all; figure;
-% %         subplot(1,2,1),subimage(imread(strcat('image/',image_names{ii})));
-% %         subplot(1,2,2),bar(BoW(:,ii)),xlim([0 500]);
-% %       end 
-% end 
+%Normalise the BoW
+
+for i = 1:nvids
+    BoW(i,:)=do_normalize(BoW(i,:));
+end
+
+save('BoW_hog','BoW');
+
+%%
+% KNN
+
+clear;
+load('BoW_hog');
+labels = importdata('jpl_interaction_labels.xlsx');
+labels1 = struct('name',[],'label',[]);
+labels1.name = labels.textdata.segmented(2:85,1);
+labels1.label = labels.data.segmented(:,2);
+
+
+
+train_labels  = [labels1.label(1:18) ;labels1.label(20:61)];
+test_labels = labels1.label(62:84);
+train_data = BoW(1:60,:);
+test_data  = BoW(61:83,:);
+clear BoW;
+k = 1;% set the k for k-nn algorithm 
+method = 1;% 1-L2; 2- Histogram intersection 
+NNresult = knnsearch(test_data,train_data,k,method);
+
+if k >1 
+  NNresult = round(mean(NNresult,2));% stores the nearest neighbour 
+end 
+predict_label = train_labels(NNresult);
+
+%%
+% Average precision
+correct = zeros(1,23);
+for i = 1:23
+    if (test_labels(i)==predict_label(i))
+        correct(i) = 1;
+    end
+end
+
+MAP = sum(correct(:))/23;
