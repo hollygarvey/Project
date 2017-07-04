@@ -1,14 +1,14 @@
 %%
 %Create dictionary
 clear 
-load('descriptors_chosen_hog');
+load('Data/descriptors_chosen_hof');
 DictionarySize = 4000;
 run('vlfeat-0.9.16/toolbox/vl_setup');% to compile the vlfeat lab. 
 tic
-[C,A_hog] = vl_kmeans(descriptors_chosen.hog,DictionarySize,'algorithm', 'elkan');
-C_hog = C';
+[C,A_hof] = vl_kmeans(descriptors_chosen.hof,DictionarySize,'algorithm', 'elkan');
+C_hof = C';
 toc
-save('dictionary_hog','C_hog');
+save('Data/dictionary_hof','C_hof');
 
 %%
 %Distance between dictionary and descriptors
@@ -113,3 +113,30 @@ for i = 1:23
 end
 
 MAP = sum(correct(:))/23;
+
+%%
+% Confusion matrix
+plotc = confusionmat(test_labels,predict_label);
+
+% num_class = 7;
+% num_test_1c = floor(size(predict_label,1)/num_class);
+% confusion_matrix = ones(num_class);
+class_names={...
+    'shake'
+    'hug'
+    'pet'
+    'wave'
+    'point'
+    'punch'
+    'throw'
+    };
+% for ci = 1:num_class
+%     for cj = 1:num_class
+%         confusion_matrix(ci,cj)=size(find(predict_label((ci-1)*num_test_1c+1:ci*num_test_1c,:)==cj),1)/num_test_1c;
+%     end 
+% end 
+% close all; figure;
+% draw_cm(confusion_matrix,class_names,num_class);
+plotc = plotc/7;
+
+draw_cm(plotc,class_names,7);
